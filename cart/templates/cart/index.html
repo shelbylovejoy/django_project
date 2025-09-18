@@ -10,6 +10,20 @@
         <hr />
       </div>
     </div>
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <form method="get" action="{% url 'cart.index' %}">
+          <div class="input-group">
+            <label class="input-group-text" for="activeCartSelect">Active Cart</label>
+            <select class="form-select" id="activeCartSelect" name="active" onchange="this.form.submit()">
+              <option value="cart1" {% if template_data.active_cart == 'cart1' %}selected{% endif %}>Cart 1 ({{ template_data.carts_summary.cart1 }})</option>
+              <option value="cart2" {% if template_data.active_cart == 'cart2' %}selected{% endif %}>Cart 2 ({{ template_data.carts_summary.cart2 }})</option>
+              <option value="cart3" {% if template_data.active_cart == 'cart3' %}selected{% endif %}>Cart 3 ({{ template_data.carts_summary.cart3 }})</option>
+            </select>
+          </div>
+        </form>
+      </div>
+    </div>
     <div class="row m-1">
       <table class="table table-bordered table-striped text-center">
         <thead>
@@ -26,7 +40,7 @@
             <td>{{ movie.id }}</td>
             <td>{{ movie.name }}</td>
             <td>${{ movie.price }}</td>
-            <td>{{ request.session.cart|get_quantity:movie.id }}</td>
+            <td>{{ request.session|get_quantity_from_session:movie.id }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -36,8 +50,8 @@
       <div class="text-end">
         <a class="btn btn-outline-secondary mb-2"><b>Total to pay:</b> ${{ template_data.cart_total }}</a>
         {% if template_data.movies_in_cart|length > 0 %}
-        <a href="{% url 'cart.purchase' %}" class="btn bg-dark text-white mb-2">Purchase</a>
-        <a href="{% url 'cart.clear' %}">
+        <a href="{% url 'cart.purchase' %}?active={{ template_data.active_cart }}" class="btn bg-dark text-white mb-2">Purchase</a>
+        <a href="{% url 'cart.clear' %}?active={{ template_data.active_cart }}">
           <button class="btn btn-danger mb-2">
             Remove all movies from Cart
           </button>
