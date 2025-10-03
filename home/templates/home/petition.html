@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col mx-auto mb-3">
+        <h2>Movie Petition</h2>
+        <hr />
+        <p>If you'd like us to add a movie to the store, please fill out the petition form below and we'll review it.</p>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <form method="post" action="#">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="movie_name" class="form-label">Movie name</label>
+            <input type="text" class="form-control" id="movie_name" name="movie_name" required />
+          </div>
+          <div class="mb-3">
+            <label for="reason" class="form-label">Why should we add it?</label>
+            <textarea class="form-control" id="reason" name="reason" rows="4"></textarea>
+          </div>
+          <div class="text-center">
+            <button type="submit" class="btn bg-dark text-white">Submit Petition</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col-md-8 mx-auto">
+          <h3>Current Petitions</h3>
+          <hr />
+          {% for p in template_data.petitions %}
+          <div class="card mb-2">
+            <div class="card-body">
+              <h5>{{ p.movie_name }}</h5>
+              <p class="text-muted">Submitted {{ p.created_at }}{% if p.created_by %} by {{ p.created_by.username }}{% endif %}</p>
+              <p>{{ p.reason }}</p>
+              <div class="d-flex align-items-center">
+                <form method="post" action="{% url 'home.petition' %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="vote" />
+                  <input type="hidden" name="petition_id" value="{{ p.id }}" />
+                  {% if user.is_authenticated and user in p.voters.all %}
+                  <button class="btn btn-outline-danger me-2" type="submit">Unvote</button>
+                  {% else %}
+                  <button class="btn btn-outline-primary me-2" type="submit">Vote</button>
+                  {% endif %}
+                </form>
+                <div><strong>{{ p.votes_count }}</strong> votes</div>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <p>No petitions yet — be the first to submit one!</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+{% endblock content %}
